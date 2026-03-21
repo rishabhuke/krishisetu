@@ -17,7 +17,6 @@ import cv2
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
-from translations import get_translations
 
 app = Flask(__name__)
 app.secret_key = 'KrishiSetu_secret_2024'
@@ -701,7 +700,7 @@ MANDI_DATA = [
 
 @app.route('/mandi')
 def mandi():
-    t = get_translations(get_lang())
+    
     search   = request.args.get('search', '').strip().lower()
     state    = request.args.get('state', 'all')
 
@@ -726,8 +725,7 @@ def mandi():
                            selected_state=state,
                            search=search,
                            last_updated=datetime.now().strftime(
-                               "%d %b %Y, %I:%M %p"), t=t,
-                           lang=get_lang())
+                               "%d %b %Y, %I:%M %p"), )
 
 
 # ============================================
@@ -951,7 +949,7 @@ MONTHS = ['January', 'February', 'March', 'April',
 
 @app.route('/calendar')
 def calendar():
-    t = get_translations(get_lang())
+    
     category = request.args.get('category', 'all')
     month    = request.args.get('month', 'all')
     search   = request.args.get('search', '').strip().lower()
@@ -993,8 +991,7 @@ def calendar():
                            search=search,
                            current_month=current_month,
                            sow_now=sow_now,
-                           harvest_now=harvest_now, t=t,
-                           lang=get_lang())
+                           harvest_now=harvest_now, )
 
 # ============================================
 # Government Schemes Data
@@ -1233,7 +1230,7 @@ GOVT_SCHEMES = [
 
 @app.route('/schemes')
 def schemes():
-    t = get_translations(get_lang())
+    
     category = request.args.get('category', 'all')
     search   = request.args.get('search', '').strip().lower()
 
@@ -1255,8 +1252,7 @@ def schemes():
                            categories=categories,
                            selected_category=category,
                            search=search,
-                           total=len(GOVT_SCHEMES), t=t,
-                           lang=get_lang())
+                           total=len(GOVT_SCHEMES), )
 
 
 # ============================================
@@ -1591,17 +1587,15 @@ def login_required(f):
 
 @app.route('/')
 def index():
-    t = get_translations(get_lang())
-    return render_template('index.html', t=t,
-                           lang=get_lang())
+    
+    return render_template('index.html', )
 
 
 @app.route('/detect')
 @login_required
 def detect():
-    t = get_translations(get_lang())
-    return render_template('detect.html', t=t,
-                           lang=get_lang())
+    
+    return render_template('detect.html', )
 
 
 @app.route('/predict', methods=['POST'])
@@ -1642,7 +1636,7 @@ def predict():
 
 @app.route('/shop')
 def shop():
-    t = get_translations(get_lang())
+    
     category = request.args.get('category', 'all')
     search   = request.args.get('search', '')
 
@@ -1669,12 +1663,11 @@ def shop():
                                'seeds':       len(PRODUCTS['seeds']),
                                'medicines':   len(PRODUCTS['medicines']),
                                'fertilizers': len(PRODUCTS['fertilizers'])
-                           }, t=t,
-                           lang=get_lang())
+                           }, )
 
 @app.route('/weather', methods=['GET', 'POST'])
 def weather():
-    t = get_translations(get_lang())
+    
     weather_data = None
     error        = None
     city         = 'Bhopal'  # Default city
@@ -1687,14 +1680,13 @@ def weather():
     return render_template('weather.html',
                            weather=weather_data,
                            error=error,
-                           city=city, t=t,
-                           lang=get_lang())
+                           city=city, )
 
 
 @app.route('/history')
 @login_required
 def history():
-    t = get_translations(get_lang())
+    
     scans    = load_history()
     total    = len(scans)
     healthy  = sum(1 for s in scans if s['is_healthy'])
@@ -1713,8 +1705,7 @@ def history():
                            total=total,
                            healthy=healthy,
                            diseased=diseased,
-                           top_plant=top_plant, t=t,
-                           lang=get_lang())
+                           top_plant=top_plant, )
 
 @app.route('/history/clear')
 def clear_history():
@@ -1817,22 +1808,6 @@ def logout():
     session.clear()
     flash(f'Goodbye, {name}! You have been logged out.', 'success')
     return redirect(url_for('login'))
-
-
-# ============================================
-# Language Switcher
-# ============================================
-@app.route('/set_language/<lang>')
-def set_language(lang):
-    """Store selected language in session"""
-    if lang in ['en', 'hi', 'mr']:
-        session['lang'] = lang
-    return redirect(request.referrer or url_for('index'))
-
-
-def get_lang():
-    """Get current language from session"""
-    return session.get('lang', 'en')
 
 
 
