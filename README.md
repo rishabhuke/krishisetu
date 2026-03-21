@@ -8,7 +8,7 @@
 
 > **Design and Development of a Machine Learning-Based Model for Crop Disease Detection with a Web-Based Interface**
 >
-> B.Tech Final Year Project — Madhav Institute of Technology and Science, Gwalior
+> B.Tech Project — Madhav Institute of Technology and Science, Gwalior
 
 ---
 
@@ -22,7 +22,7 @@ India loses approximately **₹50,000 crore annually** due to crop diseases. Ove
 
 ## 🌟 Live Demo
 
-> 🔗 **[Try KrishiSetu Live](https://huggingface.co/spaces/YOUR_USERNAME/krishisetu)**
+> 🔗 **[Try KrishiSetu Live](https://huggingface.co/spaces/rishabhuke/krishisetu)** *(Coming Soon)*
 
 ---
 
@@ -34,11 +34,23 @@ India loses approximately **₹50,000 crore annually** due to crop diseases. Ove
 ### Disease Detection
 ![Detection](docs/screenshots/detect.png)
 
-### Results with Treatment
-![Results](docs/screenshots/result.png)
-
 ### Farm Shop
 ![Shop](docs/screenshots/shop.png)
+
+### Mandi Prices
+![Mandi](docs/screenshots/mandi.png)
+
+### Weather Forecast
+![Weather](docs/screenshots/weather.png)
+
+### Govt Schemes
+![Schemes](docs/screenshots/schemes.png)
+
+### Crop Calendar
+![Calendar](docs/screenshots/calendar.png)
+
+### Scan History
+![History](docs/screenshots/history.png)
 
 ---
 
@@ -133,7 +145,7 @@ Disease Prediction + Confidence Score
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/krishisetu.git
+git clone https://github.com/rishabhuke/krishisetu.git
 cd krishisetu
 
 # 2. Create conda environment
@@ -143,9 +155,9 @@ conda activate cropenv
 # 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Download the model
+# 4. Download the trained model
 # Place mobilenet_finetuned.keras in the model/ folder
-# Download from: [Google Drive Link]
+# Download from Google Drive: [Add your link here]
 
 # 5. Run the application
 cd app
@@ -166,7 +178,6 @@ krishisetu/
 │
 ├── app/                          # Flask web application
 │   ├── app.py                    # Main application & routes
-│   ├── translations.py           # Multi-language support
 │   ├── static/
 │   │   ├── css/style.css         # Complete stylesheet
 │   │   └── js/cart.js            # Shopping cart logic
@@ -184,19 +195,16 @@ krishisetu/
 │       └── signup.html           # Registration
 │
 ├── model/                        # Trained models
-│   ├── mobilenet_finetuned.keras # Best model (94% accuracy)
 │   └── class_names.json          # 38 disease class labels
+│   (mobilenet_finetuned.keras — download separately)
 │
 ├── notebooks/                    # Jupyter notebooks
 │   ├── 01_data_exploration.ipynb
 │   ├── 02_model_training.ipynb
 │   └── 03_evaluation.ipynb
 │
+├── docs/screenshots/             # App screenshots
 ├── report/                       # Charts and visualizations
-│   ├── confusion_matrix.png
-│   ├── training_history.png
-│   └── per_class_accuracy.png
-│
 ├── requirements.txt              # Python dependencies
 └── README.md                     # This file
 ```
@@ -226,7 +234,7 @@ Total Evaluated:     10,861 images
 
 ### Why MobileNetV2?
 - **10x smaller** than CNN from scratch (30MB vs 299MB)
-- **3x faster training** (2 hours vs 6 hours)
+- **3x faster** training (2 hours vs 6 hours)
 - **Higher accuracy** (94% vs 93.4%)
 - **Mobile-ready** — can be deployed on edge devices
 
@@ -234,7 +242,7 @@ Total Evaluated:     10,861 images
 MobileNetV2 was pretrained on ImageNet (1.2M images, 1000 classes). It already knows how to detect edges, textures and shapes. We only needed to teach it crop-specific disease patterns — saving massive training time.
 
 ### Why Flask?
-Lightweight, Python-native, easy to integrate with TensorFlow. Perfect for ML model serving without overhead of Django.
+Lightweight, Python-native, easy to integrate with TensorFlow. Perfect for ML model serving without the overhead of Django.
 
 ---
 
@@ -254,7 +262,7 @@ Lightweight, Python-native, easy to integrate with TensorFlow. Perfect for ML mo
 
 - **Project Title:** Design and Development of a Machine Learning-Based Model for Crop Disease Detection with a Web-Based Interface
 - **Student:** Rishabh Uke
-- **Degree:** B.Tech (Computer Science)
+- **Degree:** B.Tech (Artificial Intelligence and Machine Learning)
 - **Institute:** Madhav Institute of Technology and Science, Gwalior
 - **Year:** 2024-25
 
@@ -263,15 +271,15 @@ Lightweight, Python-native, easy to integrate with TensorFlow. Perfect for ML mo
 ## 📞 Contact
 
 **Rishabh Uke**
-- 📧 Email: your-email@gmail.com
-- 🔗 LinkedIn: linkedin.com/in/your-profile
-- 🐙 GitHub: github.com/YOUR_USERNAME
+- 📧 Email: rishabhuke14@gmail.com
+- 🔗 LinkedIn: linkedin.com/in/rishabh-uke-7ab08628b/
+- 🐙 GitHub: github.com/rishabhuke
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
 
