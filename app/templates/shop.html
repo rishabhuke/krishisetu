@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop — KrishiSetu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">Krishi<strong>Setu</strong></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/detect" class="nav-link">Detect</a>
+            <a href="/shop" class="nav-link">Shop</a>
+            <a href="/weather" class="nav-link">Weather</a>
+            <a href="/mandi" class="nav-link">Mandi</a>
+            <a href="/calendar" class="nav-link">Calendar</a>
+            <a href="/schemes" class="nav-link">Schemes</a>
+            <a href="/history" class="nav-link">History</a>
+        </div>
+        <div class="nav-right">
+            {% if session.user_name %}
+            <div class="nav-user">
+                <div class="nav-user-avatar">
+                    {{ session.user_name[0].upper() }}
+                </div>
+                <span class="nav-user-name">{{ session.user_name }}</span>
+            </div>
+            <a href="/logout" class="nav-logout">Logout</a>
+            {% else %}
+            <a href="/login" class="nav-login">Login</a>
+            {% endif %}
+            <button class="cart-btn" onclick="Cart.toggle()">
+                Cart
+                <span class="cart-badge" style="display:none;">0</span>
+            </button>
+        </div>
+        
+    </nav>
+
+    <main class="page-main">
+        <div class="shop-wrapper">
+
+            <!-- Shop Header -->
+            <div class="shop-header">
+                <div>
+                    <h2>🛒 Farm Supply Shop</h2>
+                    <p>Seeds, medicines and fertilizers for healthy crops</p>
+                </div>
+                <!-- Search -->
+                <form class="search-form" method="GET" action="/shop">
+                    <input type="text" name="search"
+                           placeholder="Search products..."
+                           value="{{ search }}"
+                           class="search-input">
+                    <input type="hidden" name="category"
+                           value="{{ category }}">
+                    <button type="submit" class="search-btn">🔍</button>
+                </form>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="category-tabs">
+                <a href="/shop?category=all"
+                   class="cat-tab {{ 'active' if category == 'all' else '' }}">
+                    All Products
+                    <span class="cat-count">{{ counts.all }}</span>
+                </a>
+                <a href="/shop?category=seeds"
+                   class="cat-tab {{ 'active' if category == 'seeds' else '' }}">
+                    🌱 Seeds
+                    <span class="cat-count">{{ counts.seeds }}</span>
+                </a>
+                <a href="/shop?category=medicines"
+                   class="cat-tab {{ 'active' if category == 'medicines' else '' }}">
+                    💊 Medicines
+                    <span class="cat-count">{{ counts.medicines }}</span>
+                </a>
+                <a href="/shop?category=fertilizers"
+                   class="cat-tab {{ 'active' if category == 'fertilizers' else '' }}">
+                    🌿 Fertilizers
+                    <span class="cat-count">{{ counts.fertilizers }}</span>
+                </a>
+            </div>
+
+            <!-- Products Grid -->
+            {% if products %}
+            <div class="products-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <div class="product-img">{{ product.image }}</div>
+                    <div class="product-body">
+                        <div class="product-category">
+                            {{ product.category | capitalize }}
+                        </div>
+                        <h3 class="product-name">{{ product.name }}</h3>
+                        <p class="product-brand">by {{ product.brand }}</p>
+                        <p class="product-desc">{{ product.description }}</p>
+                        <div class="product-rating">
+                            {% for i in range(5) %}
+                            {% if i < product.rating | int %}
+                            ⭐
+                            {% endif %}
+                            {% endfor %}
+                            <span>{{ product.rating }}</span>
+                        </div>
+                    </div>
+                    <div class="product-footer">
+                        <div class="product-price">
+                            <span class="price-amount">
+                                ₹{{ product.price }}
+                            </span>
+                            <span class="price-unit">
+                                / {{ product.unit }}
+                            </span>
+                        </div>
+                        <button class="btn-add-cart"
+                            onclick="Cart.add(
+                                '{{ product.id }}',
+                                '{{ product.name }}',
+                                {{ product.price }},
+                                '{{ product.image }}',
+                                '{{ product.category }}'
+                            )">
+                            + Add to Cart
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <div class="empty-state">
+                <div style="font-size:3rem;">🔍</div>
+                <h3>No products found</h3>
+                <p>Try a different search or category</p>
+                <a href="/shop" class="btn-primary" style="margin-top:16px;">
+                    View All Products
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"
+         onclick="Cart.toggle()"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>🛒 Your Cart —
+                <span id="cartCount">0</span> items
+            </h3>
+            <button onclick="Cart.toggle()">✕</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>Total</span>
+                <strong id="cartTotal">₹0</strong>
+            </div>
+            <button class="btn-checkout" onclick="Cart.checkout()">
+                Place Order
+            </button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+</body>
+</html>

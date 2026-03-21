@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detect Disease — KrishiSetu</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">Krishi<strong>Setu</strong></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/detect" class="nav-link">Detect</a>
+            <a href="/shop" class="nav-link">Shop</a>
+            <a href="/weather" class="nav-link">Weather</a>
+            <a href="/mandi" class="nav-link">Mandi</a>
+            <a href="/calendar" class="nav-link">Calendar</a>
+            <a href="/schemes" class="nav-link">Schemes</a>
+            <a href="/history" class="nav-link">History</a>
+        </div>
+        <div class="nav-right">
+            {% if session.user_name %}
+            <div class="nav-user">
+                <div class="nav-user-avatar">
+                    {{ session.user_name[0].upper() }}
+                </div>
+                <span class="nav-user-name">{{ session.user_name }}</span>
+            </div>
+            <a href="/logout" class="nav-logout">Logout</a>
+            {% else %}
+            <a href="/login" class="nav-login">Login</a>
+            {% endif %}
+            <button class="cart-btn" onclick="Cart.toggle()">
+                Cart
+                <span class="cart-badge" style="display:none;">0</span>
+            </button>
+        </div>
+        
+    </nav>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Analyzing leaf image...</div>
+        <div class="loading-sub">Running AI model prediction</div>
+        <div class="loading-steps">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <main class="detect-main">
+        <div class="detect-layout">
+
+            <!-- Left Column -->
+            <div class="detect-left">
+
+                <!-- Header -->
+                <div class="detect-header">
+                    <h1 class="detect-title">Disease Detection</h1>
+                    <p class="detect-sub">
+                        Upload a clear photo of an affected leaf and
+                        get an instant AI-powered diagnosis with
+                        treatment recommendations.
+                    </p>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="detect-stats">
+                    <div class="detect-stat">
+                        <span class="ds-num">94%</span>
+                        <span class="ds-lbl">Accuracy</span>
+                    </div>
+                    <div class="detect-stat">
+                        <span class="ds-num">38</span>
+                        <span class="ds-lbl">Diseases</span>
+                    </div>
+                    <div class="detect-stat">
+                        <span class="ds-num">3s</span>
+                        <span class="ds-lbl">Result Time</span>
+                    </div>
+                </div>
+
+                <!-- How it works -->
+                <div class="detect-steps">
+                    <div class="detect-step">
+                        <div class="ds-icon-wrap">
+                            <svg width="18" height="18" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor"
+                                 stroke-width="2.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="ds-step-title">Upload Photo</div>
+                            <div class="ds-step-desc">Take or upload a clear leaf photo</div>
+                        </div>
+                    </div>
+                    <div class="ds-connector"></div>
+                    <div class="detect-step">
+                        <div class="ds-icon-wrap">
+                            <svg width="18" height="18" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor"
+                                 stroke-width="2.5">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 8v4l3 3"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="ds-step-title">AI Analysis</div>
+                            <div class="ds-step-desc">MobileNetV2 scans for 38 diseases</div>
+                        </div>
+                    </div>
+                    <div class="ds-connector"></div>
+                    <div class="detect-step">
+                        <div class="ds-icon-wrap">
+                            <svg width="18" height="18" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor"
+                                 stroke-width="2.5">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="ds-step-title">Get Results</div>
+                            <div class="ds-step-desc">Diagnosis + treatment + products</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Supported Crops -->
+                <div class="detect-crops">
+                    <div class="detect-crops-title">Supported Crops</div>
+                    <div class="detect-crops-grid">
+                        <span>🍅 Tomato</span>
+                        <span>🥔 Potato</span>
+                        <span>🌽 Corn</span>
+                        <span>🍇 Grape</span>
+                        <span>🍎 Apple</span>
+                        <span>🫑 Pepper</span>
+                        <span>🍊 Orange</span>
+                        <span>🍑 Peach</span>
+                        <span>🍓 Strawberry</span>
+                        <span>🍒 Cherry</span>
+                        <span>🫐 Blueberry</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column — Upload -->
+            <div class="detect-right">
+
+                {% if error %}
+                <div class="error-box">{{ error }}</div>
+                {% endif %}
+
+                <form action="/predict" method="POST"
+                      enctype="multipart/form-data" id="uploadForm">
+
+                    <!-- Drop Zone -->
+                    <div class="drop-zone" id="dropZone">
+                        <div class="drop-icon-wrap">
+                            <svg width="28" height="28" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor"
+                                 stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                        </div>
+                        <h3>Drop your leaf image here</h3>
+                        <p>or click to browse from your device</p>
+                        <span class="drop-formats">JPG &bull; JPEG &bull; PNG</span>
+                        <input type="file" name="file" id="fileInput"
+                               accept=".jpg,.jpeg,.png" hidden>
+                    </div>
+
+                    <!-- Preview -->
+                    <div class="preview-box" id="previewBox"
+                         style="display:none;">
+                        <img id="previewImg" src="" alt="Preview">
+                        <p class="preview-name" id="previewName"></p>
+                        <button type="button" class="preview-change"
+                                id="changeBtn">Change image</button>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn-predict"
+                            id="submitBtn" style="display:none;">
+                        Analyze Disease
+                    </button>
+
+                </form>
+
+                <!-- Tips -->
+                <div class="tips-section">
+                    <p class="tips-title">Tips for best results</p>
+                    <div class="tips-grid">
+                        <div class="tip">Clear, focused photo</div>
+                        <div class="tip">Good natural lighting</div>
+                        <div class="tip">Single leaf visible</div>
+                        <div class="tip">Show affected area</div>
+                    </div>
+                </div>
+
+                <!-- Model Note -->
+                <div class="model-note">
+                    Best accuracy with Tomato, Potato, Corn, Grape and Pepper.
+                    Raspberry and Blueberry have limited training data.
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay" onclick="Cart.toggle()"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Cart — <span id="cartCount">0</span> items</h3>
+            <button onclick="Cart.toggle()">✕</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>Total</span>
+                <strong id="cartTotal">₹0</strong>
+            </div>
+            <button class="btn-checkout" onclick="Cart.checkout()">
+                Place Order
+            </button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+    <script>
+        const dropZone    = document.getElementById('dropZone');
+        const fileInput   = document.getElementById('fileInput');
+        const previewBox  = document.getElementById('previewBox');
+        const previewImg  = document.getElementById('previewImg');
+        const previewName = document.getElementById('previewName');
+        const submitBtn   = document.getElementById('submitBtn');
+        const changeBtn   = document.getElementById('changeBtn');
+        const overlay     = document.getElementById('loadingOverlay');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            if (e.dataTransfer.files[0])
+                showPreview(e.dataTransfer.files[0]);
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files[0]) showPreview(fileInput.files[0]);
+        });
+
+        changeBtn.addEventListener('click', () => {
+            previewBox.style.display = 'none';
+            submitBtn.style.display  = 'none';
+            dropZone.style.display   = 'block';
+            fileInput.value = '';
+        });
+
+        function showPreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src          = e.target.result;
+                previewName.textContent = file.name;
+                previewBox.style.display = 'block';
+                submitBtn.style.display  = 'block';
+                dropZone.style.display   = 'none';
+            };
+            reader.readAsDataURL(file);
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            fileInput.files = dt.files;
+        }
+
+        document.getElementById('uploadForm')
+            .addEventListener('submit', () => {
+                overlay.classList.add('active');
+            });
+    </script>
+</body>
+</html>

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KrishiSetu — Smart Crop Disease Detection</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">Krishi<strong>Setu</strong></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/detect" class="nav-link">Detect</a>
+            <a href="/shop" class="nav-link">Shop</a>
+            <a href="/weather" class="nav-link">Weather</a>
+            <a href="/mandi" class="nav-link">Mandi</a>
+            <a href="/calendar" class="nav-link">Calendar</a>
+            <a href="/schemes" class="nav-link">Schemes</a>
+            <a href="/history" class="nav-link">History</a>
+        </div>
+        <div class="nav-right">
+            {% if session.user_name %}
+            <div class="nav-user">
+                <div class="nav-user-avatar">
+                    {{ session.user_name[0].upper() }}
+                </div>
+                <span class="nav-user-name">{{ session.user_name }}</span>
+            </div>
+            <a href="/logout" class="nav-logout">Logout</a>
+            {% else %}
+            <a href="/login" class="nav-login">Login</a>
+            {% endif %}
+            <button class="cart-btn" onclick="Cart.toggle()">
+                Cart
+                <span class="cart-badge" style="display:none;">0</span>
+            </button>
+        </div>
+        
+    </nav>
+
+    <!-- =====================
+         HERO
+    ===================== -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">AI-Powered Agriculture</div>
+            <h1 class="hero-title">
+                Protect Your Crops with
+                <span class="hero-highlight">AI Technology</span>
+            </h1>
+            <p class="hero-sub">
+                Upload a leaf photo and get instant AI-powered disease
+                diagnosis, treatment recommendations and shop for the
+                right products — all in one platform built for
+                Indian farmers.
+            </p>
+            <div class="hero-actions">
+                <a href="/detect" class="btn-primary">Detect Disease Free</a>
+                <a href="/shop" class="btn-outline">Visit Shop</a>
+            </div>
+            <div class="hero-trust">
+                <div class="trust-item">
+                    <div class="trust-check">✓</div>
+                    <span>94% Accuracy</span>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-check">✓</div>
+                    <span>38 Disease Classes</span>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-check">✓</div>
+                    <span>Always Free</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="hero-result-card">
+                <div class="hrc-dot diseased-dot"></div>
+                <div class="hrc-info">
+                    <div class="hrc-title">Tomato Early Blight</div>
+                    <div class="hrc-conf">Confidence: 96.4%</div>
+                </div>
+                <div class="hrc-badge">Detected</div>
+            </div>
+
+            <div class="hero-infographic">
+                <div class="infographic-title">Crop Disease Impact in India</div>
+                <div class="infographic-big-stat">
+                    <div class="ibs-num">₹50,000 Cr</div>
+                    <div class="ibs-label">Annual crop loss due to diseases</div>
+                </div>
+                <div class="infographic-divider"></div>
+                <div class="infographic-stats">
+                    <div class="inf-stat">
+                        <div class="inf-stat-num">30%</div>
+                        <div class="inf-stat-lbl">Yield lost to diseases yearly</div>
+                    </div>
+                    <div class="inf-stat-sep"></div>
+                    <div class="inf-stat">
+                        <div class="inf-stat-num">70%</div>
+                        <div class="inf-stat-lbl">Farmers lack early detection</div>
+                    </div>
+                    <div class="inf-stat-sep"></div>
+                    <div class="inf-stat">
+                        <div class="inf-stat-num">3x</div>
+                        <div class="inf-stat-lbl">Better yield with early diagnosis</div>
+                    </div>
+                </div>
+                <div class="infographic-divider"></div>
+                <div class="infographic-diseases">
+                    <div class="inf-diseases-title">Most Common Diseases</div>
+                    <div class="inf-disease-row">
+                        <span class="inf-disease-crop">🍅 Tomato Blight</span>
+                        <div class="inf-disease-bar-wrap">
+                            <div class="inf-disease-bar" style="width:85%"></div>
+                        </div>
+                        <span class="inf-disease-pct">85%</span>
+                    </div>
+                    <div class="inf-disease-row">
+                        <span class="inf-disease-crop">🥔 Potato Blight</span>
+                        <div class="inf-disease-bar-wrap">
+                            <div class="inf-disease-bar" style="width:72%"></div>
+                        </div>
+                        <span class="inf-disease-pct">72%</span>
+                    </div>
+                    <div class="inf-disease-row">
+                        <span class="inf-disease-crop">🌽 Corn Rust</span>
+                        <div class="inf-disease-bar-wrap">
+                            <div class="inf-disease-bar" style="width:61%"></div>
+                        </div>
+                        <span class="inf-disease-pct">61%</span>
+                    </div>
+                    <div class="inf-disease-row">
+                        <span class="inf-disease-crop">🍇 Grape Rot</span>
+                        <div class="inf-disease-bar-wrap">
+                            <div class="inf-disease-bar" style="width:48%"></div>
+                        </div>
+                        <span class="inf-disease-pct">48%</span>
+                    </div>
+                </div>
+                <div class="infographic-divider"></div>
+                <div class="infographic-result">
+                    <div class="inf-result-icon">✓</div>
+                    <div class="inf-result-text">
+                        KrishiSetu detects diseases with
+                        <strong>94% accuracy</strong> in under 3 seconds
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-result-card">
+                <div class="hrc-dot healthy-dot"></div>
+                <div class="hrc-info">
+                    <div class="hrc-title">Treatment Found</div>
+                    <div class="hrc-conf">3 products recommended</div>
+                </div>
+                <div class="hrc-badge healthy-badge">Ready</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================
+         STATS BAR
+    ===================== -->
+    <section class="stats-section">
+        <div class="stats-inner">
+            <div class="stat-item">
+                <div class="stat-num">94%</div>
+                <div class="stat-lbl">Detection Accuracy</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-num">38</div>
+                <div class="stat-lbl">Disease Classes</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-num">54K+</div>
+                <div class="stat-lbl">Training Images</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-num">11</div>
+                <div class="stat-lbl">Crop Types</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-num">12</div>
+                <div class="stat-lbl">Govt Schemes</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-num">Free</div>
+                <div class="stat-lbl">Always Free</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================
+         HOW IT WORKS
+    ===================== -->
+    <section class="how-section">
+        <div class="section-inner">
+            <div class="section-header">
+                <div class="section-badge">Simple Process</div>
+                <h2>How KrishiSetu Works</h2>
+                <p>Get a diagnosis in 3 simple steps</p>
+            </div>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-num">01</div>
+                    <div class="step-icon-wrap">
+                        <svg width="32" height="32" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                    </div>
+                    <h3>Upload Photo</h3>
+                    <p>Take a clear photo of the affected leaf and upload it to our platform</p>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="step-card">
+                    <div class="step-num">02</div>
+                    <div class="step-icon-wrap">
+                        <svg width="32" height="32" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 8v4l3 3"/>
+                        </svg>
+                    </div>
+                    <h3>AI Analysis</h3>
+                    <p>Our MobileNetV2 model analyzes the image with 94% accuracy</p>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="step-card">
+                    <div class="step-num">03</div>
+                    <div class="step-icon-wrap">
+                        <svg width="32" height="32" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                    <h3>Get Treatment</h3>
+                    <p>Receive diagnosis, remedies and recommended products instantly</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================
+         FEATURES
+    ===================== -->
+    <section class="features-section">
+        <div class="section-inner">
+            <div class="section-header">
+                <div class="section-badge">Platform Features</div>
+                <h2>Everything a Farmer Needs</h2>
+                <p>One platform for all your agricultural needs</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-num">01</div>
+                    <h3>AI Detection</h3>
+                    <p>Upload a leaf photo and get instant disease diagnosis powered by deep learning.</p>
+                    <a href="/detect" class="feature-link">Try Now →</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-num">02</div>
+                    <h3>Farm Shop</h3>
+                    <p>Buy seeds, medicines and fertilizers recommended for your specific disease.</p>
+                    <a href="/shop" class="feature-link">Shop Now →</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-num">03</div>
+                    <h3>Weather Forecast</h3>
+                    <p>Get real-time weather with farming advice based on current conditions.</p>
+                    <a href="/weather" class="feature-link">Check Weather →</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-num">04</div>
+                    <h3>Mandi Prices</h3>
+                    <p>Check current crop market rates across major mandis in India.</p>
+                    <a href="/mandi" class="feature-link">View Prices →</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-num">05</div>
+                    <h3>Crop Calendar</h3>
+                    <p>Know exactly when to sow and harvest each crop for best yield.</p>
+                    <a href="/calendar" class="feature-link">View Calendar →</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-num">06</div>
+                    <h3>Govt Schemes</h3>
+                    <p>Discover subsidies and government schemes you are eligible for.</p>
+                    <a href="/schemes" class="feature-link">View Schemes →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================
+         CROPS
+    ===================== -->
+    <section class="crops-section">
+        <div class="section-inner">
+            <div class="section-header">
+                <div class="section-badge">Coverage</div>
+                <h2>Supported Crops</h2>
+                <p>11 crop types with 38 disease categories</p>
+            </div>
+            <div class="crops-showcase">
+                <div class="crop-showcase-item">
+                    <span class="crop-big-icon">🍅</span>
+                    <span class="crop-big-name">Tomato</span>
+                    <span class="crop-big-count">9 diseases</span>
+                </div>
+                <div class="crop-showcase-item">
+                    <span class="crop-big-icon">🥔</span>
+                    <span class="crop-big-name">Potato</span>
+                    <span class="crop-big-count">3 diseases</span>
+                </div>
+                <div class="crop-showcase-item">
+                    <span class="crop-big-icon">🌽</span>
+                    <span class="crop-big-name">Corn</span>
+                    <span class="crop-big-count">4 diseases</span>
+                </div>
+                <div class="crop-showcase-item">
+                    <span class="crop-big-icon">🍇</span>
+                    <span class="crop-big-name">Grape</span>
+                    <span class="crop-big-count">4 diseases</span>
+                </div>
+                <div class="crop-showcase-item">
+                    <span class="crop-big-icon">🍎</span>
+                    <span class="crop-big-name">Apple</span>
+                    <span class="crop-big-count">4 diseases</span>
+                </div>
+                <div class="crop-showcase-item">
+                    <span class="crop-big-icon">🫑</span>
+                    <span class="crop-big-name">Pepper</span>
+                    <span class="crop-big-count">2 diseases</span>
+                </div>
+                <div class="crop-showcase-item">
+                    <span class="crop-big-icon">🍊</span>
+                    <span class="crop-big-name">Orange</span>
+                    <span class="crop-big-count">1 disease</span>
+                </div>
+                <div class="crop-showcase-item">
+                    <span class="crop-big-icon">🍑</span>
+                    <span class="crop-big-name">Peach</span>
+                    <span class="crop-big-count">2 diseases</span>
+                </div>
+                <div class="crop-showcase-item">
+                    <span class="crop-big-icon">🍓</span>
+                    <span class="crop-big-name">Strawberry</span>
+                    <span class="crop-big-count">2 diseases</span>
+                </div>
+                <div class="crop-showcase-item">
+                    <span class="crop-big-icon">🍒</span>
+                    <span class="crop-big-name">Cherry</span>
+                    <span class="crop-big-count">2 diseases</span>
+                </div>
+                <div class="crop-showcase-item">
+                    <span class="crop-big-icon">🫐</span>
+                    <span class="crop-big-name">Blueberry</span>
+                    <span class="crop-big-count">1 disease</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================
+         TESTIMONIALS
+    ===================== -->
+    <section class="testimonials-section">
+        <div class="section-inner">
+            <div class="section-header">
+                <div class="section-badge">Farmer Reviews</div>
+                <h2>Trusted by Farmers</h2>
+                <p>What farmers say about KrishiSetu</p>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars"><span>★★★★★</span></div>
+                    <p class="testimonial-text">
+                        "Mere tamatar ki fasal mein blight aa gayi thi.
+                        KrishiSetu ne turant pehchan kar sahi dawa batai.
+                        Fasal bach gayi!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar-text">RP</div>
+                        <div>
+                            <div class="author-name">Ramesh Patel</div>
+                            <div class="author-loc">Indore, Madhya Pradesh</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars"><span>★★★★★</span></div>
+                    <p class="testimonial-text">
+                        "Mandi prices feature bahut kaam aata hai.
+                        Ab main sahi samay par apni fasal bech sakta
+                        hoon aur achha daam milta hai."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar-text">SK</div>
+                        <div>
+                            <div class="author-name">Suresh Kumar</div>
+                            <div class="author-loc">Pune, Maharashtra</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars"><span>★★★★★</span></div>
+                    <p class="testimonial-text">
+                        "PM-KISAN scheme ke baare mein KrishiSetu se
+                        pata chala. Ab mujhe har saal 6,000 rupaye
+                        milte hain. Bahut helpful platform hai!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar-text">SD</div>
+                        <div>
+                            <div class="author-name">Savita Devi</div>
+                            <div class="author-loc">Lucknow, Uttar Pradesh</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================
+         FOOTER
+    ===================== -->
+    <footer class="site-footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="footer-logo">KrishiSetu</div>
+                <p>AI-powered crop disease detection platform for Indian farmers.</p>
+                <div class="footer-social">
+                    <span>krishisetu@gmail.com</span>
+                    <span>Kisan Helpline: 1800-180-XXXX</span>
+                </div>
+            </div>
+            <div class="footer-links-group">
+                <h4>Platform</h4>
+                <a href="/detect">Disease Detection</a>
+                <a href="/shop">Farm Shop</a>
+                <a href="/weather">Weather</a>
+                <a href="/mandi">Mandi Prices</a>
+            </div>
+            <div class="footer-links-group">
+                <h4>Resources</h4>
+                <a href="/calendar">Crop Calendar</a>
+                <a href="/schemes">Govt Schemes</a>
+                <a href="/history">Scan History</a>
+            </div>
+            <div class="footer-links-group">
+                <h4>Technology</h4>
+                <span>TensorFlow 2.16</span>
+                <span>MobileNetV2</span>
+                <span>Flask Python</span>
+                <span>PlantVillage Dataset</span>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Built for Indian Farmers —
+               94% Accuracy — 38 Disease Classes — Free Forever</p>
+        </div>
+    </footer>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay" onclick="Cart.toggle()"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Cart — <span id="cartCount">0</span> items</h3>
+            <button onclick="Cart.toggle()">✕</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>Total</span>
+                <strong id="cartTotal">₹0</strong>
+            </div>
+            <button class="btn-checkout" onclick="Cart.checkout()">
+                Place Order
+            </button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+
+    <!-- Developer Section -->
+    <section class="developer-section">
+        <div class="section-inner">
+            <div class="developer-card">
+                <div class="dev-left">
+                    <div class="dev-avatar">RU</div>
+                </div>
+                <div class="dev-info">
+                    <div class="dev-built-by">Built & Developed by</div>
+                    <h3 class="dev-name">Rishabh Uke</h3>
+                    <p class="dev-role">B.Tech 3rd Year Student</p>
+                    <p class="dev-college">
+                        Madhav Institute of Technology and Science, Gwalior
+                    </p>
+                    <div class="dev-tags">
+                        <span class="dev-tag">Machine Learning</span>
+                        <span class="dev-tag">Computer Vision</span>
+                        <span class="dev-tag">Full Stack</span>
+                        <span class="dev-tag">TensorFlow</span>
+                        <span class="dev-tag">Flask</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather — KrishiSetu</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">Krishi<strong>Setu</strong></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/detect" class="nav-link">Detect</a>
+            <a href="/shop" class="nav-link">Shop</a>
+            <a href="/weather" class="nav-link">Weather</a>
+            <a href="/mandi" class="nav-link">Mandi</a>
+            <a href="/calendar" class="nav-link">Calendar</a>
+            <a href="/schemes" class="nav-link">Schemes</a>
+            <a href="/history" class="nav-link">History</a>
+        </div>
+        <div class="nav-right">
+            {% if session.user_name %}
+            <div class="nav-user">
+                <div class="nav-user-avatar">
+                    {{ session.user_name[0].upper() }}
+                </div>
+                <span class="nav-user-name">{{ session.user_name }}</span>
+            </div>
+            <a href="/logout" class="nav-logout">Logout</a>
+            {% else %}
+            <a href="/login" class="nav-login">Login</a>
+            {% endif %}
+            <button class="cart-btn" onclick="Cart.toggle()">
+                Cart
+                <span class="cart-badge" style="display:none;">0</span>
+            </button>
+        </div>
+        
+    </nav>
+
+    <main class="page-main">
+        <div class="weather-wrapper">
+
+            <!-- Header -->
+            <div class="page-header">
+                <h2>🌤️ Farm Weather Forecast</h2>
+                <p>Real-time weather with farming advice</p>
+            </div>
+
+            <!-- Search Form -->
+            <form method="POST" action="/weather" class="city-form">
+                <input type="text" name="city"
+                       placeholder="Enter your city name..."
+                       value="{{ city }}"
+                       class="city-input">
+                <button type="submit" class="city-btn">
+                    🔍 Get Weather
+                </button>
+            </form>
+
+            <!-- Error -->
+            {% if error %}
+            <div class="error-box">⚠️ {{ error }}</div>
+            {% endif %}
+
+            {% if weather %}
+
+            <!-- Current Weather Card -->
+            <div class="weather-card">
+                <div class="weather-main">
+                    <div class="weather-left">
+                        <div class="weather-icon-big">
+                            {{ weather.icon }}
+                        </div>
+                        <div class="weather-temp">
+                            {{ weather.temp }}°C
+                        </div>
+                        <div class="weather-condition">
+                            {{ weather.condition }}
+                        </div>
+                        <div class="weather-location">
+                            📍 {{ weather.city }}, {{ weather.country }}
+                        </div>
+                    </div>
+                    <div class="weather-right">
+                        <div class="weather-stat-grid">
+                            <div class="weather-stat">
+                                <span class="ws-icon">🌡️</span>
+                                <span class="ws-val">
+                                    {{ weather.feels_like }}°C
+                                </span>
+                                <span class="ws-lbl">Feels Like</span>
+                            </div>
+                            <div class="weather-stat">
+                                <span class="ws-icon">💧</span>
+                                <span class="ws-val">
+                                    {{ weather.humidity }}%
+                                </span>
+                                <span class="ws-lbl">Humidity</span>
+                            </div>
+                            <div class="weather-stat">
+                                <span class="ws-icon">💨</span>
+                                <span class="ws-val">
+                                    {{ weather.wind }} km/h
+                                </span>
+                                <span class="ws-lbl">Wind</span>
+                            </div>
+                            <div class="weather-stat">
+                                <span class="ws-icon">👁️</span>
+                                <span class="ws-val">
+                                    {{ weather.visibility }} km
+                                </span>
+                                <span class="ws-lbl">Visibility</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            {% if weather.alerts %}
+            <div class="weather-alerts">
+                <p class="section-title">⚠️ Weather Alerts</p>
+                {% for alert in weather.alerts %}
+                <div class="alert-item">{{ alert }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Farming Advice -->
+            {% if weather.advice %}
+            <div class="farming-advice">
+                <p class="section-title">🌱 Farming Advice for Today</p>
+                <div class="advice-grid">
+                    {% for tip in weather.advice %}
+                    <div class="advice-item">{{ tip }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- 5 Day Forecast -->
+            <div class="forecast-section">
+                <p class="section-title">📅 5-Day Forecast</p>
+                <div class="forecast-grid">
+                    {% for day in weather.forecast %}
+                    {% set cond = day.weather[0].main.lower() %}
+                    <div class="forecast-card">
+                        <div class="forecast-day">
+                            {{ day.dt_txt[:10] }}
+                        </div>
+                        <div class="forecast-icon">
+                            {% if 'clear' in cond %}☀️
+                            {% elif 'cloud' in cond %}⛅
+                            {% elif 'rain' in cond %}🌧️
+                            {% elif 'snow' in cond %}❄️
+                            {% elif 'thunder' in cond %}⛈️
+                            {% else %}🌤️
+                            {% endif %}
+                        </div>
+                        <div class="forecast-temp">
+                            {{ day.main.temp | round | int }}°C
+                        </div>
+                        <div class="forecast-desc">
+                            {{ day.weather[0].description | title }}
+                        </div>
+                        <div class="forecast-humidity">
+                            💧 {{ day.main.humidity }}%
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% endif %}
+
+        </div>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"
+         onclick="Cart.toggle()"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>🛒 Cart —
+                <span id="cartCount">0</span> items
+            </h3>
+            <button onclick="Cart.toggle()">✕</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>Total</span>
+                <strong id="cartTotal">₹0</strong>
+            </div>
+            <button class="btn-checkout" onclick="Cart.checkout()">
+                Place Order
+            </button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+</body>
+</html>

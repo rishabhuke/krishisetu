@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mandi Prices — KrishiSetu</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">Krishi<strong>Setu</strong></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/detect" class="nav-link">Detect</a>
+            <a href="/shop" class="nav-link">Shop</a>
+            <a href="/weather" class="nav-link">Weather</a>
+            <a href="/mandi" class="nav-link">Mandi</a>
+            <a href="/calendar" class="nav-link">Calendar</a>
+            <a href="/schemes" class="nav-link">Schemes</a>
+            <a href="/history" class="nav-link">History</a>
+        </div>
+        <div class="nav-right">
+            {% if session.user_name %}
+            <div class="nav-user">
+                <div class="nav-user-avatar">
+                    {{ session.user_name[0].upper() }}
+                </div>
+                <span class="nav-user-name">{{ session.user_name }}</span>
+            </div>
+            <a href="/logout" class="nav-logout">Logout</a>
+            {% else %}
+            <a href="/login" class="nav-login">Login</a>
+            {% endif %}
+            <button class="cart-btn" onclick="Cart.toggle()">
+                Cart
+                <span class="cart-badge" style="display:none;">0</span>
+            </button>
+        </div>
+        
+    </nav>
+
+    <main class="page-main">
+        <div class="mandi-wrapper">
+
+            <!-- Header -->
+            <div class="mandi-header">
+                <div>
+                    <h2>💰 Mandi Prices</h2>
+                    <p>Current crop market rates across India</p>
+                </div>
+                <div class="last-updated">
+                    🕐 Updated: {{ last_updated }}
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <form method="GET" action="/mandi" class="mandi-filters">
+
+                <!-- Search -->
+                <input type="text"
+                       name="search"
+                       placeholder="🔍 Search crop or market..."
+                       value="{{ search }}"
+                       class="mandi-search">
+
+                <!-- State Filter -->
+                <select name="state" class="mandi-select">
+                    <option value="all"
+                        {% if selected_state == 'all' %}
+                        selected{% endif %}>
+                        All States
+                    </option>
+                    {% for s in states %}
+                    <option value="{{ s }}"
+                        {% if selected_state == s %}
+                        selected{% endif %}>
+                        {{ s }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit" class="mandi-filter-btn">
+                    Apply
+                </button>
+
+                <a href="/mandi" class="mandi-clear-btn">
+                    Clear
+                </a>
+
+            </form>
+
+            <!-- Stats Row -->
+            <div class="mandi-stats">
+                <div class="mandi-stat-box">
+                    <span class="msb-num">{{ prices | length }}</span>
+                    <span class="msb-lbl">Results Found</span>
+                </div>
+                <div class="mandi-stat-box">
+                    <span class="msb-num">{{ states | length }}</span>
+                    <span class="msb-lbl">States Covered</span>
+                </div>
+                <div class="mandi-stat-box">
+                    <span class="msb-num">
+                        {{ prices | selectattr('trend', 'eq', 'up')
+                           | list | length }}
+                    </span>
+                    <span class="msb-lbl">🔺 Rising Prices</span>
+                </div>
+                <div class="mandi-stat-box">
+                    <span class="msb-num">
+                        {{ prices | selectattr('trend', 'eq', 'down')
+                           | list | length }}
+                    </span>
+                    <span class="msb-lbl">🔻 Falling Prices</span>
+                </div>
+            </div>
+
+            <!-- Price Table -->
+            {% if prices %}
+            <div class="mandi-table-wrap">
+                <table class="mandi-table">
+                    <thead>
+                        <tr>
+                            <th>Crop</th>
+                            <th>Market</th>
+                            <th>State</th>
+                            <th>Min ₹</th>
+                            <th>Max ₹</th>
+                            <th>Modal ₹</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for price in prices %}
+                        <tr class="mandi-row">
+                            <td>
+                                <span class="crop-emoji">
+                                    {{ price.emoji }}
+                                </span>
+                                <span class="crop-name">
+                                    {{ price.crop }}
+                                </span>
+                            </td>
+                            <td class="market-name">
+                                {{ price.market }}
+                            </td>
+                            <td>
+                                <span class="state-badge">
+                                    {{ price.state }}
+                                </span>
+                            </td>
+                            <td class="price-cell price-min">
+                                ₹{{ price.min }}
+                            </td>
+                            <td class="price-cell price-max">
+                                ₹{{ price.max }}
+                            </td>
+                            <td class="price-cell price-modal">
+                                ₹{{ price.modal }}
+                            </td>
+                            <td>
+                                {% if price.trend == 'up' %}
+                                <span class="trend-up">🔺 Rising</span>
+                                {% elif price.trend == 'down' %}
+                                <span class="trend-down">🔻 Falling</span>
+                                {% else %}
+                                <span class="trend-stable">➡️ Stable</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+            <div class="empty-state">
+                <div style="font-size:3rem;">🔍</div>
+                <h3>No results found</h3>
+                <p>Try different crop name or state</p>
+                <a href="/mandi" class="btn-primary"
+                   style="margin-top:16px;display:inline-block;">
+                    View All Prices
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Disclaimer -->
+            <div class="mandi-disclaimer">
+                ⚠️ Prices are indicative and updated periodically.
+                For official rates visit
+                <strong>agmarknet.gov.in</strong>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"
+         onclick="Cart.toggle()"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>🛒 Cart —
+                <span id="cartCount">0</span> items
+            </h3>
+            <button onclick="Cart.toggle()">✕</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>Total</span>
+                <strong id="cartTotal">₹0</strong>
+            </div>
+            <button class="btn-checkout" onclick="Cart.checkout()">
+                Place Order
+            </button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static',filename='js/cart.js') }}"></script>
+</body>
+</html>

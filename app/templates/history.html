@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan History — KrishiSetu</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">Krishi<strong>Setu</strong></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/detect" class="nav-link">Detect</a>
+            <a href="/shop" class="nav-link">Shop</a>
+            <a href="/weather" class="nav-link">Weather</a>
+            <a href="/mandi" class="nav-link">Mandi</a>
+            <a href="/calendar" class="nav-link">Calendar</a>
+            <a href="/schemes" class="nav-link">Schemes</a>
+            <a href="/history" class="nav-link">History</a>
+        </div>
+        <div class="nav-right">
+            {% if session.user_name %}
+            <div class="nav-user">
+                <div class="nav-user-avatar">
+                    {{ session.user_name[0].upper() }}
+                </div>
+                <span class="nav-user-name">{{ session.user_name }}</span>
+            </div>
+            <a href="/logout" class="nav-logout">Logout</a>
+            {% else %}
+            <a href="/login" class="nav-login">Login</a>
+            {% endif %}
+            <button class="cart-btn" onclick="Cart.toggle()">
+                Cart
+                <span class="cart-badge" style="display:none;">0</span>
+            </button>
+        </div>
+        
+    </nav>
+
+    <main class="page-main">
+        <div class="history-wrapper">
+
+            <!-- Header -->
+            <div class="history-header">
+                <div>
+                    <h2>📊 Scan History</h2>
+                    <p>Your crop disease detection records</p>
+                </div>
+                {% if total > 0 %}
+                <a href="/history/clear"
+                   class="btn-clear-history"
+                   onclick="return confirm('Clear all history?')">
+                    🗑️ Clear History
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Stats Row -->
+            <div class="history-stats">
+                <div class="history-stat-box">
+                    <span class="hsb-icon">🔍</span>
+                    <span class="hsb-num">{{ total }}</span>
+                    <span class="hsb-lbl">Total Scans</span>
+                </div>
+                <div class="history-stat-box healthy-box">
+                    <span class="hsb-icon">✅</span>
+                    <span class="hsb-num">{{ healthy }}</span>
+                    <span class="hsb-lbl">Healthy</span>
+                </div>
+                <div class="history-stat-box diseased-box">
+                    <span class="hsb-icon">⚠️</span>
+                    <span class="hsb-num">{{ diseased }}</span>
+                    <span class="hsb-lbl">Diseased</span>
+                </div>
+                <div class="history-stat-box">
+                    <span class="hsb-icon">🌱</span>
+                    <span class="hsb-num">{{ top_plant }}</span>
+                    <span class="hsb-lbl">Most Scanned</span>
+                </div>
+            </div>
+
+            {% if scans %}
+
+            <!-- Health Summary Bar -->
+            {% if total > 0 %}
+            <div class="health-summary">
+                <div class="health-bar-label">
+                    <span>Crop Health Overview</span>
+                    <span>
+                        {{ ((healthy / total) * 100) | round | int }}%
+                        healthy
+                    </span>
+                </div>
+                <div class="health-bar-bg">
+                    <div class="health-bar-fill"
+                         style="width: {{ ((healthy/total)*100)|round|int }}%">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Scan List -->
+            <div class="scan-list">
+                {% for scan in scans %}
+                <div class="scan-item">
+
+                    <!-- Image -->
+                    <div class="scan-img-wrap">
+                        <img src="{{ url_for('static',
+                                    filename=scan.image_path) }}"
+                             alt="Scan"
+                             onerror="this.src='';
+                                      this.parentElement.innerHTML='🌿'">
+                    </div>
+
+                    <!-- Info -->
+                    <div class="scan-info">
+                        <div class="scan-top">
+                            <span class="scan-plant">
+                                {{ scan.plant }}
+                            </span>
+                            {% if scan.is_healthy %}
+                            <span class="scan-status healthy-status">
+                                ✅ Healthy
+                            </span>
+                            {% else %}
+                            <span class="scan-status diseased-status">
+                                ⚠️ Diseased
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="scan-disease">
+                            {{ scan.disease }}
+                        </div>
+                        <div class="scan-meta">
+                            <span>📅 {{ scan.timestamp }}</span>
+                            <span>📊 {{ scan.confidence }}% confidence</span>
+                            {% if scan.severity != 'None' %}
+                            <span>⚠️ {{ scan.severity }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Confidence Bar -->
+                    <div class="scan-conf">
+                        <div class="scan-conf-num">
+                            {{ scan.confidence }}%
+                        </div>
+                        <div class="scan-conf-bar">
+                            {% if scan.is_healthy %}
+                            <div style="width:{{ scan.confidence }}%;
+                                        height:100%;
+                                        background:#27ae60;
+                                        border-radius:4px;">
+                            </div>
+                            {% else %}
+                            <div style="width:{{ scan.confidence }}%;
+                                        height:100%;
+                                        background:#e74c3c;
+                                        border-radius:4px;">
+                            </div>
+                            {% endif %}
+                        </div>
+                        <a href="/detect" class="scan-rescan">
+                            Re-scan
+                        </a>
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div style="font-size:4rem;">🔍</div>
+                <h3>No scans yet</h3>
+                <p>Upload your first leaf image to start tracking</p>
+                <a href="/detect" class="btn-primary"
+                   style="margin-top:20px;display:inline-block;">
+                    🔍 Start First Scan
+                </a>
+            </div>
+
+            {% endif %}
+
+        </div>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"
+         onclick="Cart.toggle()"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>🛒 Cart —
+                <span id="cartCount">0</span> items
+            </h3>
+            <button onclick="Cart.toggle()">✕</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>Total</span>
+                <strong id="cartTotal">₹0</strong>
+            </div>
+            <button class="btn-checkout" onclick="Cart.checkout()">
+                Place Order
+            </button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+</body>
+</html>

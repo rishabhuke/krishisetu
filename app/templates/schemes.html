@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Govt Schemes — KrishiSetu</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">Krishi<strong>Setu</strong></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/detect" class="nav-link">Detect</a>
+            <a href="/shop" class="nav-link">Shop</a>
+            <a href="/weather" class="nav-link">Weather</a>
+            <a href="/mandi" class="nav-link">Mandi</a>
+            <a href="/calendar" class="nav-link">Calendar</a>
+            <a href="/schemes" class="nav-link">Schemes</a>
+            <a href="/history" class="nav-link">History</a>
+        </div>
+        <div class="nav-right">
+            {% if session.user_name %}
+            <div class="nav-user">
+                <div class="nav-user-avatar">
+                    {{ session.user_name[0].upper() }}
+                </div>
+                <span class="nav-user-name">{{ session.user_name }}</span>
+            </div>
+            <a href="/logout" class="nav-logout">Logout</a>
+            {% else %}
+            <a href="/login" class="nav-login">Login</a>
+            {% endif %}
+            <button class="cart-btn" onclick="Cart.toggle()">
+                Cart
+                <span class="cart-badge" style="display:none;">0</span>
+            </button>
+        </div>
+        
+    </nav>
+
+    <main class="page-main">
+        <div class="schemes-wrapper">
+
+            <!-- Header -->
+            <div class="schemes-header">
+                <div>
+                    <h2>📋 Government Schemes</h2>
+                    <p>{{ total }} schemes available for Indian farmers</p>
+                </div>
+                <div class="schemes-badge">
+                    🇮🇳 Updated 2024-25
+                </div>
+            </div>
+
+            <!-- Search & Filter -->
+            <form method="GET" action="/schemes"
+                  class="schemes-filters">
+                <input type="text"
+                       name="search"
+                       placeholder="🔍 Search schemes..."
+                       value="{{ search }}"
+                       class="schemes-search">
+                <select name="category" class="schemes-select">
+                    <option value="all"
+                        {% if selected_category == 'all' %}
+                        selected{% endif %}>
+                        All Categories
+                    </option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}"
+                        {% if selected_category == cat %}
+                        selected{% endif %}>
+                        {{ cat | capitalize }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="schemes-filter-btn">
+                    Apply
+                </button>
+                <a href="/schemes" class="schemes-clear-btn">Clear</a>
+            </form>
+
+            <!-- Quick Filter Tags -->
+            <div class="scheme-tags">
+                <a href="/schemes?category=all"
+                   class="scheme-tag {{ 'active' if selected_category == 'all' else '' }}">
+                    All
+                </a>
+                <a href="/schemes?category=financial"
+                   class="scheme-tag {{ 'active' if selected_category == 'financial' else '' }}">
+                    💰 Financial
+                </a>
+                <a href="/schemes?category=insurance"
+                   class="scheme-tag {{ 'active' if selected_category == 'insurance' else '' }}">
+                    🛡️ Insurance
+                </a>
+                <a href="/schemes?category=irrigation"
+                   class="scheme-tag {{ 'active' if selected_category == 'irrigation' else '' }}">
+                    💧 Irrigation
+                </a>
+                <a href="/schemes?category=equipment"
+                   class="scheme-tag {{ 'active' if selected_category == 'equipment' else '' }}">
+                    🚜 Equipment
+                </a>
+                <a href="/schemes?category=organic"
+                   class="scheme-tag {{ 'active' if selected_category == 'organic' else '' }}">
+                    🌿 Organic
+                </a>
+                <a href="/schemes?category=pension"
+                   class="scheme-tag {{ 'active' if selected_category == 'pension' else '' }}">
+                    👴 Pension
+                </a>
+            </div>
+
+            <!-- Results count -->
+            <p class="results-count">
+                Showing <strong>{{ schemes | length }}</strong> schemes
+            </p>
+
+            <!-- Schemes Grid -->
+            {% if schemes %}
+            <div class="schemes-grid">
+                {% for scheme in schemes %}
+                <div class="scheme-card">
+
+                    <!-- Card Header -->
+                    <div class="scheme-card-header">
+                        <div class="scheme-emoji">{{ scheme.emoji }}</div>
+                        <div class="scheme-title-wrap">
+                            <div class="scheme-tag-badge">
+                                {{ scheme.tag }}
+                            </div>
+                            <h3 class="scheme-name">{{ scheme.name }}</h3>
+                            <p class="scheme-full-name">
+                                {{ scheme.full_name }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Benefit Banner -->
+                    <div class="scheme-benefit">
+                        ✅ {{ scheme.benefit }}
+                    </div>
+
+                    <!-- Description -->
+                    <p class="scheme-desc">{{ scheme.description }}</p>
+
+                    <!-- Eligibility -->
+                    <div class="scheme-section">
+                        <p class="scheme-section-title">
+                            ✔️ Eligibility
+                        </p>
+                        <ul class="scheme-list">
+                            {% for item in scheme.eligibility %}
+                            <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- Documents -->
+                    <div class="scheme-section">
+                        <p class="scheme-section-title">
+                            📄 Documents Required
+                        </p>
+                        <div class="docs-wrap">
+                            {% for doc in scheme.documents %}
+                            <span class="doc-tag">{{ doc }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="scheme-footer">
+                        <div class="scheme-meta">
+                            <span>🏛️ {{ scheme.ministry }}</span>
+                            <span>📅 {{ scheme.deadline }}</span>
+                        </div>
+                        <a href="{{ scheme.apply_link }}"
+                           target="_blank"
+                           class="btn-apply">
+                            Apply Now →
+                        </a>
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <div class="empty-state">
+                <div style="font-size:3rem;">🔍</div>
+                <h3>No schemes found</h3>
+                <p>Try different search terms</p>
+                <a href="/schemes" class="btn-primary"
+                   style="margin-top:16px;display:inline-block;">
+                    View All Schemes
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Helpline -->
+            <div class="helpline-box">
+                <div class="helpline-icon">📞</div>
+                <div>
+                    <strong>Kisan Call Center</strong>
+                    <p>Call <strong>1800-180-1551</strong>
+                       (Toll Free) for scheme assistance</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"
+         onclick="Cart.toggle()"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>🛒 Cart —
+                <span id="cartCount">0</span> items
+            </h3>
+            <button onclick="Cart.toggle()">✕</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>Total</span>
+                <strong id="cartTotal">₹0</strong>
+            </div>
+            <button class="btn-checkout" onclick="Cart.checkout()">
+                Place Order
+            </button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detection Result — KrishiSetu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">Krishi<strong>Setu</strong></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/detect" class="nav-link">Detect</a>
+            <a href="/shop" class="nav-link">Shop</a>
+            <a href="/weather" class="nav-link">Weather</a>
+            <a href="/mandi" class="nav-link">Mandi</a>
+            <a href="/calendar" class="nav-link">Calendar</a>
+            <a href="/schemes" class="nav-link">Schemes</a>
+            <a href="/history" class="nav-link">History</a>
+        </div>
+        <div class="nav-right">
+            {% if session.user_name %}
+            <div class="nav-user">
+                <div class="nav-user-avatar">
+                    {{ session.user_name[0].upper() }}
+                </div>
+                <span class="nav-user-name">{{ session.user_name }}</span>
+            </div>
+            <a href="/logout" class="nav-logout">Logout</a>
+            {% else %}
+            <a href="/login" class="nav-login">Login</a>
+            {% endif %}
+            <button class="cart-btn" onclick="Cart.toggle()">
+                Cart
+                <span class="cart-badge" style="display:none;">0</span>
+            </button>
+        </div>
+        
+    </nav>
+
+    <main class="page-main">
+        <div class="result-wrapper">
+
+            <a href="/detect" class="back-link">← Analyze another image</a>
+
+            <div class="result-card">
+
+                <!-- Banner -->
+                {% if result.is_healthy %}
+                <div class="result-banner healthy">
+                    ✅ Plant is Healthy
+                </div>
+                {% else %}
+                <div class="result-banner diseased">
+                    ⚠️ Disease Detected
+                </div>
+                {% endif %}
+
+                <div class="result-body">
+
+                    {% if not result.is_reliable %}
+                    <div class="low-confidence-warning">
+                        <div class="warning-icon">⚠️</div>
+                        <div class="warning-content">
+                            <strong>Low Confidence Detection ({{ result.confidence }}%)</strong>
+                            <p>For best results please:</p>
+                            <ul>
+                                <li>Use a clear, close-up photo of a single leaf</li>
+                                <li>Ensure good lighting — avoid shadows</li>
+                                <li>Use a plain background if possible</li>
+                                <li>Make sure the affected area is clearly visible</li>
+                            </ul>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Main Row -->
+                    <div class="result-main">
+                        <div class="result-image">
+                            <img src="{{ url_for('static',
+                                        filename=result.image_path) }}"
+                                 alt="Uploaded leaf">
+                        </div>
+                        <div class="result-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Plant</span>
+                                <span class="detail-value">
+                                    {{ result.plant }}
+                                </span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Diagnosis</span>
+                                {% if result.is_healthy %}
+                                <span class="detail-value healthy-text">
+                                    {{ result.disease }}
+                                </span>
+                                {% else %}
+                                <span class="detail-value disease-text">
+                                    {{ result.disease }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Confidence</span>
+                                <span class="detail-value">
+                                    {{ result.confidence }}%
+                                </span>
+                            </div>
+                            <div class="conf-bar-wrap">
+                                <div class="conf-bar-label">
+                                    <span>Model confidence</span>
+                                    <span>{{ result.confidence }}%</span>
+                                </div>
+                                <div class="conf-bar-bg">
+                                    {% if result.is_healthy %}
+                                    <div class="conf-bar-fill"
+                                         style="width:{{ result.confidence }}%;
+                                                background:#27ae60;">
+                                    </div>
+                                    {% else %}
+                                    <div class="conf-bar-fill"
+                                         style="width:{{ result.confidence }}%;
+                                                background:#e74c3c;">
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Severity -->
+                    {% if result.severity %}
+                    {% if result.severity == 'None' %}
+                    <div class="severity-section sev-none">
+                        <span class="severity-icon">✅</span>
+                        <div class="severity-info">
+                            <strong>No Disease Detected</strong>
+                            <span>Your plant looks healthy!</span>
+                        </div>
+                    </div>
+                    {% elif result.severity == 'Moderate' %}
+                    <div class="severity-section sev-moderate">
+                        <span class="severity-icon">⚠️</span>
+                        <div class="severity-info">
+                            <strong>Moderate Severity</strong>
+                            <span>Act within a few days.</span>
+                        </div>
+                    </div>
+                    {% elif result.severity == 'High' %}
+                    <div class="severity-section sev-high">
+                        <span class="severity-icon">🔴</span>
+                        <div class="severity-info">
+                            <strong>High Severity</strong>
+                            <span>Treat immediately.</span>
+                        </div>
+                    </div>
+                    {% elif result.severity == 'Critical' %}
+                    <div class="severity-section sev-critical">
+                        <span class="severity-icon">🚨</span>
+                        <div class="severity-info">
+                            <strong>Critical — Act Now!</strong>
+                            <span>Isolate plants immediately.</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+
+                    <!-- Top 3 -->
+                    <div class="top3-section">
+                        <p class="section-title">Top Predictions</p>
+                        {% for pred in result.top3 %}
+                        {% if loop.index0 == 0 %}
+                        <div class="top3-item first">
+                        {% else %}
+                        <div class="top3-item">
+                        {% endif %}
+                            <span class="top3-rank">#{{ loop.index }}</span>
+                            <div class="top3-info">
+                                <div class="top3-name">
+                                    {{ pred.plant }} — {{ pred.disease }}
+                                </div>
+                                <div class="top3-bar-wrap">
+                                    {% if loop.index0 == 0 %}
+                                    <div class="top3-bar-fill"
+                                         style="width:{{ pred.confidence }}%;
+                                                background:#27ae60;">
+                                    </div>
+                                    {% else %}
+                                    <div class="top3-bar-fill"
+                                         style="width:{{ pred.confidence }}%;
+                                                background:#3498db;">
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <span class="top3-conf">
+                                {{ pred.confidence }}%
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Remedy -->
+                    {% if result.symptoms %}
+                    <div class="remedy-section">
+                        <p class="section-title">
+                            {% if result.is_healthy %}
+                            Care Recommendations
+                            {% else %}
+                            Treatment Guide
+                            {% endif %}
+                        </p>
+                        <div class="remedy-block">
+                            <h4>🔍 Symptoms</h4>
+                            <p>{{ result.symptoms }}</p>
+                        </div>
+                        {% if result.remedy %}
+                        <div class="remedy-block">
+                            {% if result.is_healthy %}
+                            <h4>✅ Care Tips</h4>
+                            {% else %}
+                            <h4>💊 Recommended Treatment</h4>
+                            {% endif %}
+                            <ul class="remedy-list">
+                                {% for tip in result.remedy %}
+                                <li>{{ tip }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Recommended Products -->
+                    {% if result.recommended %}
+                    <div class="recommended-section">
+                        <p class="section-title">
+                            🛒 Recommended Products for This Disease
+                        </p>
+                        <div class="recommended-grid">
+                            {% for product in result.recommended %}
+                            <div class="rec-card">
+                                <div class="rec-img">{{ product.image }}</div>
+                                <div class="rec-info">
+                                    <div class="rec-category">
+                                        {{ product.category | capitalize }}
+                                    </div>
+                                    <div class="rec-name">
+                                        {{ product.name }}
+                                    </div>
+                                    <div class="rec-brand">
+                                        {{ product.brand }}
+                                    </div>
+                                </div>
+                                <div class="rec-footer">
+                                    <span class="rec-price">
+                                        ₹{{ product.price }}
+                                    </span>
+                                    <button class="btn-rec-cart"
+                                        onclick="Cart.add(
+                                            '{{ product.id }}',
+                                            '{{ product.name }}',
+                                            {{ product.price }},
+                                            '{{ product.image }}',
+                                            '{{ product.category }}'
+                                        )">
+                                        + Add
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <a href="/shop" class="view-all-link">
+                            View all products in shop →
+                        </a>
+                    </div>
+                    {% endif %}
+
+                </div>
+
+                <div class="action-row">
+                    <a href="/detect" class="btn-back">
+                        ← Analyze Another Image
+                    </a>
+                    <a href="/shop" class="btn-shop">
+                        🛒 Visit Shop
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"
+         onclick="Cart.toggle()"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>🛒 Cart —
+                <span id="cartCount">0</span> items
+            </h3>
+            <button onclick="Cart.toggle()">✕</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>Total</span>
+                <strong id="cartTotal">₹0</strong>
+            </div>
+            <button class="btn-checkout" onclick="Cart.checkout()">
+                Place Order
+            </button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+</body>
+</html>

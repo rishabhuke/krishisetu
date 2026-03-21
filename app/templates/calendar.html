@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Calendar — KrishiSetu</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <span class="logo-icon">🌿</span>
+            <span class="logo-text">Krishi<strong>Setu</strong></span>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/detect" class="nav-link">Detect</a>
+            <a href="/shop" class="nav-link">Shop</a>
+            <a href="/weather" class="nav-link">Weather</a>
+            <a href="/mandi" class="nav-link">Mandi</a>
+            <a href="/calendar" class="nav-link">Calendar</a>
+            <a href="/schemes" class="nav-link">Schemes</a>
+            <a href="/history" class="nav-link">History</a>
+        </div>
+        <div class="nav-right">
+            {% if session.user_name %}
+            <div class="nav-user">
+                <div class="nav-user-avatar">
+                    {{ session.user_name[0].upper() }}
+                </div>
+                <span class="nav-user-name">{{ session.user_name }}</span>
+            </div>
+            <a href="/logout" class="nav-logout">Logout</a>
+            {% else %}
+            <a href="/login" class="nav-login">Login</a>
+            {% endif %}
+            <button class="cart-btn" onclick="Cart.toggle()">
+                Cart
+                <span class="cart-badge" style="display:none;">0</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="page-main">
+        <div class="calendar-wrapper">
+
+            <!-- Header -->
+            <div class="page-header">
+                <h2>📅 Crop Calendar</h2>
+                <p>Sowing and harvesting guide for Indian farmers</p>
+            </div>
+
+            <!-- This Month Alert -->
+            <div class="this-month-section">
+                <div class="month-alert-header">
+                    🗓️ This Month — <strong>{{ current_month }}</strong>
+                </div>
+                <div class="month-alert-grid">
+
+                    <!-- Sow Now -->
+                    <div class="month-alert-card sow-card">
+                        <h4>🌱 Sow This Month</h4>
+                        {% if sow_now %}
+                        <div class="crop-tags">
+                            {% for crop in sow_now %}
+                            <span class="crop-tag-item">
+                                {{ crop.emoji }} {{ crop.crop }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="no-crops">No major crops to sow</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Harvest Now -->
+                    <div class="month-alert-card harvest-card">
+                        <h4>🌾 Harvest This Month</h4>
+                        {% if harvest_now %}
+                        <div class="crop-tags">
+                            {% for crop in harvest_now %}
+                            <span class="crop-tag-item harvest-tag">
+                                {{ crop.emoji }} {{ crop.crop }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="no-crops">No major crops to harvest</p>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <form method="GET" action="/calendar"
+                  class="calendar-filters">
+
+                <input type="text" name="search"
+                       placeholder="🔍 Search crop..."
+                       value="{{ search }}"
+                       class="mandi-search">
+
+                <select name="category" class="mandi-select">
+                    <option value="all"
+                        {% if selected_category == 'all' %}
+                        selected{% endif %}>
+                        All Categories
+                    </option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}"
+                        {% if selected_category == cat %}
+                        selected{% endif %}>
+                        {{ cat }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <select name="month" class="mandi-select">
+                    <option value="all"
+                        {% if selected_month == 'all' %}
+                        selected{% endif %}>
+                        All Months
+                    </option>
+                    {% for m in months %}
+                    <option value="{{ m }}"
+                        {% if selected_month == m %}
+                        selected{% endif %}>
+                        {{ m }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit" class="mandi-filter-btn">
+                    Apply
+                </button>
+                <a href="/calendar" class="mandi-clear-btn">
+                    Clear
+                </a>
+
+            </form>
+
+            <!-- Crop Cards Grid -->
+            {% if crops %}
+            <div class="calendar-grid">
+                {% for crop in crops %}
+                <div class="calendar-card">
+
+                    <!-- Card Header -->
+                    <div class="cal-card-header">
+                        <span class="cal-emoji">{{ crop.emoji }}</span>
+                        <div>
+                            <h3 class="cal-crop-name">{{ crop.crop }}</h3>
+                            <span class="cal-category
+                                {% if crop.category == 'Kharif' %}cat-kharif
+                                {% elif crop.category == 'Rabi' %}cat-rabi
+                                {% elif crop.category == 'Zaid' %}cat-zaid
+                                {% else %}cat-other{% endif %}">
+                                {{ crop.category }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Sowing -->
+                    <div class="cal-info-row">
+                        <span class="cal-info-label">🌱 Sow</span>
+                        <span class="cal-info-value sow-months">
+                            {{ crop.sowing_months | join(', ') }}
+                        </span>
+                    </div>
+
+                    <!-- Harvesting -->
+                    <div class="cal-info-row">
+                        <span class="cal-info-label">🌾 Harvest</span>
+                        <span class="cal-info-value harvest-months">
+                            {{ crop.harvesting_months | join(', ') }}
+                        </span>
+                    </div>
+
+                    <!-- Duration -->
+                    <div class="cal-info-row">
+                        <span class="cal-info-label">⏱️ Duration</span>
+                        <span class="cal-info-value">
+                            {{ crop.duration }}
+                        </span>
+                    </div>
+
+                    <!-- Soil -->
+                    <div class="cal-info-row">
+                        <span class="cal-info-label">🪱 Soil</span>
+                        <span class="cal-info-value">{{ crop.soil }}</span>
+                    </div>
+
+                    <!-- Water -->
+                    <div class="cal-info-row">
+                        <span class="cal-info-label">💧 Water</span>
+                        <span class="cal-info-value
+                            {% if crop.water == 'High' %}water-high
+                            {% elif crop.water == 'Low' %}water-low
+                            {% else %}water-moderate{% endif %}">
+                            {{ crop.water }}
+                        </span>
+                    </div>
+
+                    <!-- States -->
+                    <div class="cal-info-row">
+                        <span class="cal-info-label">📍 States</span>
+                        <span class="cal-info-value cal-states">
+                            {{ crop.states }}
+                        </span>
+                    </div>
+
+                    <!-- Tips -->
+                    <div class="cal-tips">
+                        💡 {{ crop.tips }}
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <div class="empty-state">
+                <div style="font-size:3rem;">🌱</div>
+                <h3>No crops found</h3>
+                <p>Try different filters</p>
+                <a href="/calendar" class="btn-primary"
+                   style="margin-top:16px; display:inline-block;">
+                    View All Crops
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"
+         onclick="Cart.toggle()"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>🛒 Cart —
+                <span id="cartCount">0</span> items
+            </h3>
+            <button onclick="Cart.toggle()">✕</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>Total</span>
+                <strong id="cartTotal">₹0</strong>
+            </div>
+            <button class="btn-checkout" onclick="Cart.checkout()">
+                Place Order
+            </button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static',
+                  filename='js/cart.js') }}"></script>
+</body>
+</html>

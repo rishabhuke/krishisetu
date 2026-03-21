@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — KrishiSetu</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-body">
+
+    <div class="auth-wrapper">
+
+        <!-- Left Panel -->
+        <div class="auth-left">
+            <div class="auth-left-content">
+                <div class="auth-logo">
+                    <span>🌿</span>
+                    <span>Krishi<strong>Setu</strong></span>
+                </div>
+                <h2>AI-Powered Crop Disease Detection</h2>
+                <p>Join thousands of farmers protecting their
+                   crops with artificial intelligence.</p>
+
+                <div class="auth-features">
+                    <div class="auth-feature">
+                        <div class="af-icon">✓</div>
+                        <span>94% accurate disease detection</span>
+                    </div>
+                    <div class="auth-feature">
+                        <div class="af-icon">✓</div>
+                        <span>38 disease categories covered</span>
+                    </div>
+                    <div class="auth-feature">
+                        <div class="af-icon">✓</div>
+                        <span>Instant treatment recommendations</span>
+                    </div>
+                    <div class="auth-feature">
+                        <div class="af-icon">✓</div>
+                        <span>Scan history tracking</span>
+                    </div>
+                </div>
+
+                <div class="auth-crops">
+                    🍅 🥔 🌽 🍇 🍎 🫑 🍊 🍑 🍓 🍒 🫐
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="auth-right">
+            <div class="auth-form-wrap">
+
+                <h1 class="auth-title">Welcome back</h1>
+                <p class="auth-subtitle">
+                    Sign in to your KrishiSetu account
+                </p>
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="flash-msg flash-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <!-- Form -->
+                <form method="POST" action="/login"
+                      class="auth-form">
+
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email"
+                               name="email"
+                               class="form-input"
+                               placeholder="you@example.com"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <div class="input-wrap">
+                            <input type="password"
+                                   name="password"
+                                   id="passwordInput"
+                                   class="form-input"
+                                   placeholder="Enter your password"
+                                   required>
+                            <button type="button"
+                                    class="toggle-password"
+                                    onclick="togglePassword()">
+                                Show
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-btn">
+                        Sign In
+                    </button>
+
+                </form>
+
+                <div class="auth-divider">
+                    <span>Don't have an account?</span>
+                </div>
+
+                <a href="/signup" class="auth-alt-btn">
+                    Create Account
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('passwordInput');
+            const btn   = document.querySelector('.toggle-password');
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = 'Hide';
+            } else {
+                input.type = 'password';
+                btn.textContent = 'Show';
+            }
+        }
+    </script>
+
+</body>
+</html>
